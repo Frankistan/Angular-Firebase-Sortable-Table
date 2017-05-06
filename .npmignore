@@ -4,3 +4,4 @@ demo/
 docs/
 npm-debug.log
 package/
+src/**/*.js

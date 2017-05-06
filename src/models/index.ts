@@ -6,3 +6,4 @@ export {SearchString} from "./search-string.interface";
 export {TableFilter} from "./table-filter.interface";
 export {TableItem} from "./table-item.interface";
 export {TableFilterOption} from "./table-filter-option.interface";
+export {MainOpts} from "./main-opts.interface";

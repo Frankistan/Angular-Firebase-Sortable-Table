@@ -2,7 +2,7 @@ import {
     Component, OnChanges, Input, ViewChild, ViewEncapsulation, SimpleChange, SimpleChanges
 } from '@angular/core';
 import { SortableTableService, SortableEvents } from "../../services/sortable-table.service";
-import { HeaderItem, TableFilter, Pagination, FieldToQueryBy, SetHeadersFunction, SearchString, TableItem } from "../../models/";
+import { HeaderItem, TableFilter, Pagination, FieldToQueryBy, SetHeadersFunction, SearchString, TableItem, MainOpts } from "../../models/";
 import { Observable } from "rxjs";
 
 declare const require: any;
@@ -34,7 +34,7 @@ const mapper = (data: Observable<{key: string, value : Array<any>}>) : Observabl
 })
 export class SortableTableComponent implements OnChanges {
     @Input() public title: string;
-    @Input() public databaseDataPath: string;
+    @Input() public mainOpts: MainOpts;
     @Input() public setHeaders: SetHeadersFunction;
     @Input() public pagination: Pagination;
     @Input() public filterByInputValue: SearchString;
@@ -56,12 +56,13 @@ export class SortableTableComponent implements OnChanges {
      */
 
     public ngOnChanges(changes: SimpleChanges): void {
-        const pathToFetchChangedTo = changes['databaseDataPath'] as SimpleChange;
-        if (pathToFetchChangedTo) {
+        const mainOptionsChanged = changes['mainOpts'] as SimpleChange;
+        if (mainOptionsChanged) {
             this.DB.lastEventHappened = undefined;
-            if (!pathToFetchChangedTo.isFirstChange()) {
+            const currentOpts = mainOptionsChanged.currentValue as MainOpts;
+            this.fieldToSortBy = currentOpts.defaultSort ? currentOpts.defaultSort : '';
+            if (!mainOptionsChanged.isFirstChange()) {
                 this.data = [];
-                this.fieldToSortBy = '';
             }
             if (this.pagination) {
                 this.DB.setPagination(this.pagination.defaultOption || 20);
@@ -72,6 +73,11 @@ export class SortableTableComponent implements OnChanges {
                     value: this.filterBySelect.defaultOption,
                     field: this.filterBySelect.field
                 }, true);
+            } else if (currentOpts.defaultSort) {
+                this.fetchData(SortableEvents.SortByField, {
+                    order: 'asc',
+                    field: currentOpts.defaultSort
+                });
             } else {
                 this.fetchData();
             }
@@ -173,7 +179,7 @@ export class SortableTableComponent implements OnChanges {
          */
 
         const requestStream = this.DB
-            .get(this.databaseDataPath, event, fieldToQueryBy)
+            .get(this.mainOpts.databaseDataPath, event, fieldToQueryBy)
             .share()
             .first();
 
