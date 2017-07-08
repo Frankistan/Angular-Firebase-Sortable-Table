@@ -5,6 +5,5 @@
 // export { PriorityKeysPipe } from './src/pipes/priority-keys.pipe';
 // export { SortableTableService } from './src/services/sortable-table.service';
 
-export * from './src/models/';
-export { NgFbSortableTableServiceModule } from './src/ngfb-sortable-table-service.module';
+// export * from './src/models/';
 export { NgFbSortableTableModule } from './src/ngfb-sortable-table.module';

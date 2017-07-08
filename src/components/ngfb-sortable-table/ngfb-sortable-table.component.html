@@ -1,0 +1,18 @@
+<!-- HEADER -->
+<ng-container class="ngfb-header" *ngIf="currentConfig.headerComponent">
+
+</ng-container>
+<!-- CONTENT -->
+<section class="ngfb-content" ngfbInfiniteScroll (scrolled)="onInfinite()">
+    <ng-template *ngFor="let ref of data; let i = index; trackBy: trackByFn"
+                 ngfbSortableItem
+                 [ref]="ref"
+                 [index]="i"
+                 (itemChange)="onItemChange($event)"
+                 [component]="currentConfig.itemComponent">
+    </ng-template>
+</section>
+<!-- FOOTER -->
+<ng-container class="ngfb-footer" *ngIf="currentConfig.footerComponent">
+
+</ng-container>
