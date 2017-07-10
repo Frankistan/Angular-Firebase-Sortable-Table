@@ -4,6 +4,8 @@ import { TableConfig, PathConfig } from '../../models';
 import { NgFbSortableTableService } from '../../services/sortable-table.service';
 import { SortableEvents, FieldToQueryBy } from '../../models';
 
+import 'rxjs/add/operator/first';
+import "rxjs/add/operator/do";
 
 @Component({
     selector: 'ngfb-sortable-table',

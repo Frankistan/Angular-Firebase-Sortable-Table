@@ -1,5 +1,12 @@
+import { Component, EventEmitter } from '@angular/core';
+import { database } from 'firebase';
 import { FieldToQueryBy } from './filter-to-query-by.interface';
-import {Component} from '@angular/core';
+
+export interface ItemComponent {
+    ref: database.DataSnapshot;
+    index: number;
+    onItemChange?: EventEmitter<any>;
+}
 
 export interface DefaultSort extends FieldToQueryBy {
     event: number
@@ -33,17 +40,15 @@ interface SearchString {
 
 export interface PathConfig {
     itemComponent: Component;
+    headerComponent?: Component;
+    footerComponent?: Component;
     searchByString?: SearchString;
     selectFilter?: SelectFilter;
     pagination?: Pagination;
     defaultSort?: DefaultSort;
-    headerComponent?: Component;
-    footerComponent?: Component;
-    newItemsToBeAddedMnually?: boolean;
+    newItemsToBeAddedManually?: boolean;
 }
 
 export interface TableConfig {
-    paths: {
-        [key: string]: PathConfig
-    }
+    [key: string]: PathConfig;
 }

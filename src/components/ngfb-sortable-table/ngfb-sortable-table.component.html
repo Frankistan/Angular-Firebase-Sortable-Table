@@ -1,5 +1,5 @@
 <!-- HEADER -->
-<ng-container class="ngfb-header" *ngIf="currentConfig.headerComponent">
+<ng-container class="ngfb-header" *ngIf="currentConfig && currentConfig.headerComponent">
 
 </ng-container>
 <!-- CONTENT -->
@@ -9,10 +9,10 @@
                  [ref]="ref"
                  [index]="i"
                  (itemChange)="onItemChange($event)"
-                 [component]="currentConfig.itemComponent">
+                 [component]="currentConfig && currentConfig.itemComponent">
     </ng-template>
 </section>
 <!-- FOOTER -->
-<ng-container class="ngfb-footer" *ngIf="currentConfig.footerComponent">
+<ng-container class="ngfb-footer" *ngIf="currentConfig && currentConfig.footerComponent">
 
 </ng-container>
