@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
-import { FieldToQueryBy, SortableEvents } from '../models';
+import { FieldToQueryBy, Events } from '../models';
 import { database } from 'firebase';
 
 import 'rxjs/add/observable/fromPromise';
@@ -13,7 +13,6 @@ import 'rxjs/add/operator/do';
 
 @Injectable()
 export class NgFbSortableTableService {
-    // public DB: database.Database = database();
     public query: Object = {
         orderByKey: true
     };
@@ -23,11 +22,7 @@ export class NgFbSortableTableService {
     public lastSort: FieldToQueryBy | null;
     public pagination: number;
 
-    private DB: database.Database;
-
-    // constructor(DB) {
-    //     this.DB.
-    // }
+    private DB: database.Database  = database();
 
     /**
      * Changes the direction of limit
@@ -55,10 +50,10 @@ export class NgFbSortableTableService {
     public querify(ref: database.Reference): any {
         const keys = Object.keys(this.query);
         return keys.reduce((reference, key: string) =>
-                key === 'orderByKey' || key === 'orderByPriority' ?
-                    reference[key]() :
-                    reference[key](this.query[key]),
-            ref
+            key === 'orderByKey' || key === 'orderByPriority' ?
+              reference[key]() :
+              reference[key](this.query[key]),
+          ref
         );
     }
 
@@ -68,7 +63,7 @@ export class NgFbSortableTableService {
      * @param fieldToQueryBy
      */
     public preGet(event?: number, fieldToQueryBy?: FieldToQueryBy) {
-        const se = SortableEvents;
+        const se = Events;
         switch (event) {
             case se.InfiniteScroll:
                 // if there was no events, user just scrolled down;
@@ -143,57 +138,58 @@ export class NgFbSortableTableService {
      * @param fieldToQueryBy
      */
     public get(path: string, event?: number, fieldToQueryBy?: FieldToQueryBy): Observable<any> {
-        if (event !== this.lastEventHappened && event !== SortableEvents.InfiniteScroll) {
+        if (event !== this.lastEventHappened && event !== Events.InfiniteScroll) {
             this.lastItemGot = null;
             this.lastKeyGot = null;
         }
         const prevLastKey = this.lastKeyGot;
         this.preGet(event, fieldToQueryBy);
         return Observable
-            .fromPromise(this.querify(this.DB['ref'](path)).once('value') as Promise<any>)
-            .map((snapshot: database.DataSnapshot): Array<database.DataSnapshot> => {
-                let refs: Array<database.DataSnapshot> = [];
-                snapshot.forEach((childRef: database.DataSnapshot) => {
-                    refs.push(childRef);
-                    return false;
-                });
-                const lastObj = refs.slice(-1)[0];
-                if (lastObj) {
-                    this.lastItemGot = lastObj;
-                    this.lastKeyGot = lastObj.key;
-                }
+          .fromPromise(this.querify(this.DB['ref'](path)).once('value') as Promise<any>)
+          .map((snapshot: database.DataSnapshot): Array<database.DataSnapshot> => {
+              let refs: Array<database.DataSnapshot> = [];
+              snapshot.forEach((childRef: database.DataSnapshot) => {
+                  refs.push(childRef);
+                  return false;
+              });
+              const lastObj = refs.slice(-1)[0];
+              if (lastObj) {
+                  this.lastItemGot = lastObj;
+                  this.lastKeyGot = lastObj.key;
+              }
 
-                if (prevLastKey === this.lastKeyGot &&
-                    event === SortableEvents.InfiniteScroll &&
-                    this.lastEventHappened === undefined
-                ) { refs = [] }
-                return refs;
-            })
+              if (prevLastKey === this.lastKeyGot &&
+                event === Events.InfiniteScroll &&
+                this.lastEventHappened === undefined
+              ) {
+                  refs = []
+              }
+              return refs;
+          })
           .map((refs: Array<database.DataSnapshot>): Array<database.DataSnapshot> => {
               if (
-                (event === SortableEvents.SortByField && fieldToQueryBy.order === 'asc') ||
-                (event === SortableEvents.InfiniteScroll &&
+                (event === Events.SortByField && fieldToQueryBy.order === 'asc') ||
+                (event === Events.InfiniteScroll &&
                 this.lastSort &&
                 this.lastSort.order &&
                 this.lastSort.order === 'asc')
               ) {
                   return refs.reverse();
-              } else if (event === SortableEvents.FilterBySearch) {
+              } else if (event === Events.FilterBySearch) {
                   // FIXME: Suspect this is not needed.
                   return refs.filter(
                     elem => typeof elem[fieldToQueryBy.field] === 'string' ?
                       elem[fieldToQueryBy.field]
                         .toLowerCase()
-                        .startsWith((fieldToQueryBy.value as string)
-                          .toLowerCase()) : false
+                        .startsWith((fieldToQueryBy.value as string).toLowerCase()) : false
                   )
               }
               return refs;
           })
-            .do(() => {
-                if (event !== SortableEvents.InfiniteScroll) {
-                    this.lastEventHappened = event;
-                }
-            })
+          .do(() => {
+              if (event !== Events.InfiniteScroll) {
+                  this.lastEventHappened = event;
+              }
+          })
     }
 }

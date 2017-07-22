@@ -2,9 +2,12 @@
  * Events that could happen in NGFBSortableTable process
  */
 
-export enum SortableEvents {
+export enum Events {
     InfiniteScroll = 1,
     SortByField,
     FilterBySearch,
-    FilterBySelect
+    FilterBySelect,
+    DeleteItem,
+    InsertItem,
+    AddItem
 }
