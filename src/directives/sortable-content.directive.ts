@@ -7,27 +7,28 @@ import {
   Component,
   EventEmitter
 } from '@angular/core';
-
 import { database } from 'firebase';
 
 /**
- * Creates TableItemComponent provided by user
+ * Creates components provided by user
  */
 
 @Directive({
-  selector: '[ngfbSortableItem]'
+  selector: '[ngfbSortableContent]'
 })
-export class SortableItemDirective {
-  @Input() public ref: database.DataSnapshot;
-  @Input() public index: number;
-  @Output() itemChange: EventEmitter<any> = new EventEmitter<any>();
+export class SortableContentDirective {
+  @Output() private onEvent?: EventEmitter<any> = new EventEmitter<any>();
+  @Input() private index?: number;
+  @Input() private ref?: database.DataSnapshot;
   @Input() set component(data: Component) {
     const factory = this.resolver.resolveComponentFactory(data as any);
     const instance = this.viewContainer.createComponent(factory, 0).instance;
-    instance['ref'] = this.ref;
-    instance['index'] = this.index;
-    if (instance['onItemChange']) {
-      instance['onItemChange'].subscribe(value => this.itemChange.emit(value));
+    if (this.index) instance['index'] = this.index;
+    if (this.ref) instance['ref'] = this.ref;
+    if (instance['emitEvent']) {
+      instance['emitEvent'].subscribe(
+        (event: number) => this.onEvent.emit(event)
+      );
     }
   }
   constructor(
